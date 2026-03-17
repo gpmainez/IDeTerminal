@@ -1,16 +1,16 @@
 public class Cell {
     private char buffer = ' ';
     private int font = 0;
-    private int colour = 0;
-    private int bgColour = 0;
+    private int cellFgColour = 0;
+    private int cellBgColour = 0;
 
     public Cell() {
     }
 
     public Cell(int font, int colour, int bgColour) {
         this.font = font;
-        this.colour = colour;
-        this.bgColour = bgColour;
+        this.cellFgColour = colour;
+        this.cellBgColour = bgColour;
     }
 
     public char getBuffer() {
@@ -31,7 +31,7 @@ public class Cell {
 
 
     public Cell copy(char newBuffer) {
-        new Cell(this.font, this.colour, this.bgColour);
+        new Cell(this.font, this.cellFgColour, this.cellBgColour);
         this.buffer = newBuffer;
         return this;
     }
@@ -39,8 +39,8 @@ public class Cell {
     public void reset() {
         buffer = ' ';
         this.font = 0;
-        this.colour = 0;
-        this.bgColour = 0;
+        this.cellFgColour = 0;
+        this.cellBgColour = 0;
     }
 
 
