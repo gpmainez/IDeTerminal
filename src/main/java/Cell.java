@@ -29,6 +29,21 @@ public class Cell {
         this.font = font;
     }
 
+    public void setCellFgColour(int cellFgColour) {
+        this.cellFgColour = cellFgColour;
+    }
+
+    public int getCellFgColour() {
+        return cellFgColour;
+    }
+
+    public int getCellBgColour() {
+        return cellBgColour;
+    }
+
+    public void setCellBgColour(int cellBgColour) {
+        this.cellBgColour = cellBgColour;
+    }
 
     public Cell copy(char newBuffer) {
         new Cell(this.font, this.cellFgColour, this.cellBgColour);

@@ -16,6 +16,22 @@ public class TerminalLine {
         }
     }
 
+    public void shiftRight(int fromX) {
+        // Idziemy od końca linii do miejsca wstawienia
+        for (int i = line.length - 1; i > fromX; i--) {
+            // Kopiujemy znak i styl z sąsiada po lewej
+            Cell current = line[i];
+            Cell leftNeighbor = line[i - 1];
+
+            current.setBuffer(leftNeighbor.getBuffer());
+            current.setFont(leftNeighbor.getFont());
+            current.setCellBgColour(leftNeighbor.getCellBgColour());
+            current.setCellFgColour(leftNeighbor.getCellFgColour());
+        }
+        // Po przesunięciu, na miejscu fromX zostaje "stary" znak,
+        // który zaraz nadpiszemy w metodzie insert.
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

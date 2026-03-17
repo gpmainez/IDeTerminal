@@ -1,60 +1,114 @@
-import java.util.Deque;
+import java.util.ArrayList;
 import java.util.List;
 
 public class baseTreminal implements TerminalBuffer {
-    private List<TerminalBuffer> screen;
-    private Deque<TerminalBuffer> stack;
+    private final List<TerminalLine> screen;
+    private final Cursor cursor;
+    private final Font style;
+    private final ScrollManager scrollback;
 
-    private final int screenHeigth;
+    private final int screenHeight;
     private final int screenWidth;
-    private final int maxScreenStack;
 
+    public baseTreminal(int height, int width, int maxScroll) {
+        this.screenHeight = height;
+        this.screenWidth = width;
+        this.screen = new ArrayList<>(height);
+        this.cursor = new Cursor(width, height);
+        this.style = new Font();
+        this.scrollback = new ScrollManager(maxScroll);
 
-    int currentX = 0;
-    int currentY = 0;
-
-    int screenFgColour = 0;
-    int screenBgColour = 0;
-    int font = 0;
+        for (int i = 0; i < height; i++) {
+            screen.add(new TerminalLine(width));
+        }
+    }
 
     @Override
     public void setAttribute(int font, int bg, int fg) {
-        this.screenFgColour = fg;
-        this.screenBgColour = bg;
-        this.font = font;
+        style.update(font, bg, fg);
     }
 
     @Override
     public void writeInput(String input) {
-        for(char c : input.toCharArray()) {
+        for (char c : input.toCharArray()) {
             placeCell(c);
         }
+    }
 
+    public void placeCell(char c) {
+        if (c == '\n') {
+            nextLine();
+            return;
+        }
 
+        if (cursor.isAtEndOfLine()) {
+            nextLine();
+        }
+
+        TerminalLine currentLine = screen.get(cursor.getY());
+        Cell cell = currentLine.getCell(cursor.getX());
+
+        cell.setBuffer(c);
+        style.applyTo(cell);
+
+        cursor.moveNext();
     }
 
     public void nextLine() {
-        currentX = 0;
-        currentY = 0;
-        screenFgColour = 0;
-        new TerminalLine(screenWidth);
+        cursor.resetX();
+        if (cursor.isAtBottom()) {
+            scrollUp();
+        } else {
+            cursor.moveDown();
+        }
+    }
+
+    private void scrollUp() {
+        TerminalLine oldLine = screen.remove(0);
+        scrollback.add(oldLine);
+        screen.add(new TerminalLine(screenWidth));
+    }
+
+    @Override
+    public void insert(String text) {
+        for (char c : text.toCharArray()) {
+            if (c == '\n') {
+                nextLine();
+                continue;
+            }
+
+            if (cursor.isAtEndOfLine()) {
+                nextLine();
+            }
+
+            TerminalLine currentLine = screen.get(cursor.getY());
+
+            // 1. Przesuwamy wszystko w prawo od obecnej pozycji kursora
+            currentLine.shiftRight(cursor.getX());
+
+            // 2. Wstawiamy znak (standardowo jak w placeCell)
+            Cell cell = currentLine.getCell(cursor.getX());
+            cell.setBuffer(c);
+            style.applyTo(cell);
+
+            cursor.moveNext();
+        }
     }
 
 
-    public void placeCell(char c) {
+    @Override public int getCursorX() { return cursor.getX(); }
+    @Override public int getCursorY() { return cursor.getY(); }
+    @Override public void setCursor(int x, int y) { cursor.set(x, y); }
 
-            if(c == '\n') {
-                nextLine();
-                return;
-            }
+    @Override
+    public char getCharAt(int x, int y) {
+        if (y < 0 || y >= screenHeight || x < 0 || x >= screenWidth) return ' ';
+        return screen.get(y).getCell(x).getBuffer();
+    }
 
-            if(currentX >= screenWidth) {
-                nextLine();
-            }
-
-            TerminalLine currentLine = screen.get(currentY);
-
-
-
+    @Override
+    public int getAttributesAt(int x, int y) {
+        if (y < 0 || y >= screenHeight || x < 0 || x >= screenWidth) return 0;
+        return screen.get(y).getCell(x).getFont();
     }
 }
