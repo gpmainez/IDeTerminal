@@ -1,3 +1,5 @@
+package Terminal;
+
 public interface TerminalBuffer {
     void setAttribute(int form, int bg , int fg);
 

@@ -1,3 +1,5 @@
+package Terminal;
+
 public class TerminalLine {
     private final Cell[] line;
     private final int width;

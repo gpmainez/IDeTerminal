@@ -1,3 +1,5 @@
+package Terminal;
+
 public class Cursor {
     private int x = 0;
     private int y = 0;
@@ -56,6 +58,6 @@ public class Cursor {
     }
 
     public void moveRight(int n) {
-        x = Math.min(width - 1, x + n);
+        x = Math.min(width, x + n);
     }
 }

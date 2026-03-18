@@ -1,3 +1,5 @@
+package Terminal;
+
 public class TerminalRingBuffer implements TerminalBuffer {
     private final TerminalLine[] buffer;
     private final int width;
@@ -57,7 +59,8 @@ public class TerminalRingBuffer implements TerminalBuffer {
     }
 
     //physically my cursorY index is always between 0 and height -1
-    //but logically it s going down to totalCapacity so we have to manage it
+    //but logically it s going from 0 to totalCapacity so we have to manage it
+    //i take into consideration case when we make a loop in 66 line
     private int getCursorIdx(int logicalY) {
         int distanceFromBottom = (height - 1) - logicalY;
         int idx = (tail - distanceFromBottom) % totalCapacity;
@@ -66,6 +69,16 @@ public class TerminalRingBuffer implements TerminalBuffer {
             idx += totalCapacity;
         }
         return idx;
+    }
+
+    private boolean isWideChar(char c) {
+        return (c >= '\u1100' && c <= '\u115F') ||
+                (c >= '\u2E80' && c <= '\uA4CF') ||
+                (c >= '\uAC00' && c <= '\uD7A3') ||
+                (c >= '\uF900' && c <= '\uFAFF') ||
+                (c >= '\uFE10' && c <= '\uFE19') ||
+                (c >= '\uFF00' && c <= '\uFF60') ||
+                (c >= '\uFFE0' && c <= '\uFFE6');
     }
 
     @Override
@@ -89,12 +102,23 @@ public class TerminalRingBuffer implements TerminalBuffer {
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
 
+
             if (c == '\n') {
                 nextLine();
                 continue;
             }
 
-            if (cursor.isAtEndOfLine()) {
+            boolean longChar = isWideChar(c);
+
+//            * have to speracte case in which wideChar is at the end of the line to write it in the nextline
+//               guaranteed that i have place for this and just write space at the end of the line
+
+            if (cursor.isAtEndOfLine() || (longChar && cursor.getX() == width - 1)) {
+                if (longChar && cursor.getX() == width - 1) {
+
+                    TerminalLine lineBeforeWrap = buffer[getCursorIdx(cursor.getY())];
+                    lineBeforeWrap.getCell(cursor.getX()).setCell(' ', currentFont, currentBg, currentFg);
+                }
                 nextLine();
             }
 
@@ -106,19 +130,21 @@ public class TerminalRingBuffer implements TerminalBuffer {
                         nextLine();
                         currentLine = buffer[getCursorIdx(cursor.getY())];
                     }
-
-                    Cell cell = currentLine.getCell(cursor.getX());
-                    cell.setCell(' ', currentFont, currentBg, currentFg);
+                    currentLine.getCell(cursor.getX()).setCell(' ', currentFont, currentBg, currentFg);
                     cursor.moveRight();
                 }
                 continue;
             }
 
-
             Cell cell = currentLine.getCell(cursor.getX());
             cell.setCell(c, currentFont, currentBg, currentFg);
-
             cursor.moveRight();
+
+//            if (longChar) {
+//                Cell emptyCell = currentLine.getCell(cursor.getX());
+//                emptyCell.setCell('\0', currentFont, currentBg, currentFg);
+//                cursor.moveRight();
+//            }
         }
     }
 
@@ -197,7 +223,7 @@ public class TerminalRingBuffer implements TerminalBuffer {
 
     @Override
     public void insertEmptyLine() {
-        //basically nextLine method
+        //basically nextLine method without moving cursor
         tail = (tail + 1) % totalCapacity;
         if (bufferSize < totalCapacity) {
             bufferSize++;
@@ -229,6 +255,7 @@ public class TerminalRingBuffer implements TerminalBuffer {
 
     @Override
     public String line(int y) {
+        //how long is the "history" in buffer
         int availableScrollback = bufferSize - height;
         if (y < -availableScrollback || y >= height) {
             return "";
@@ -237,6 +264,7 @@ public class TerminalRingBuffer implements TerminalBuffer {
         int physicalIdx = getCursorIdx(y);
         return buffer[physicalIdx].toString();
     }
+
     @Override
     public String currentScreen() {
         StringBuilder sb = new StringBuilder();

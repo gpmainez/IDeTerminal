@@ -1,3 +1,5 @@
+package Terminal;
+
 public class Cell {
     //can use each ate the same moment with |
     public static final int NORMAL = 0;           // 00000
