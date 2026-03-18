@@ -19,20 +19,6 @@ public class TerminalLine {
         }
     }
 
-    public void shiftRight(int fromX) {
-        for (int i = line.length - 1; i > fromX; i--) {
-
-            Cell current = line[i];
-            Cell leftNeighbor = line[i - 1];
-
-            current.setBuffer(leftNeighbor.getBuffer());
-            current.setFont(leftNeighbor.getFont());
-            current.setCellBgColour(leftNeighbor.getCellBgColour());
-            current.setCellFgColour(leftNeighbor.getCellFgColour());
-        }
-
-    }
-
     public Cell moveRight(int fromX, Cell insertCell) {
         Cell lastCell = line[line.length - 1].copy();
 

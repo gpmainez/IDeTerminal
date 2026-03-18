@@ -1,6 +1,15 @@
 public class Cell {
+    //can use each ate the same moment with |
+    public static final int NORMAL = 0;           // 00000
+    public static final int BOLD = 1;             // 00001
+    public static final int ITALIC = 2;           // 00010
+    public static final int UNDERLINE = 4;        // 00100
+    public static final int STRIKETHROUGH = 8;    // 01000
+    public static final int BLINK = 16;           // 10000
+
+
     private char buffer = ' ';
-    private int font = 0;
+    private int font = NORMAL;
     private int cellFgColour = 0;
     private int cellBgColour = 0;
 

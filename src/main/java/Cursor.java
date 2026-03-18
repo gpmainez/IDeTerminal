@@ -22,8 +22,8 @@ public class Cursor {
         if (y >= 0 && y < height) this.y = y;
     }
 
-    public void moveNext() {
-        x++;
+    public void moveRight() {
+        moveRight(1);
     }
 
     public void resetX() {
@@ -39,6 +39,23 @@ public class Cursor {
     }
 
     public void moveDown() {
-        if (y < height - 1) y++;
+        moveDown(1);
+    }
+
+
+    public void moveUp(int n) {
+        y = Math.max(0, y - n);
+    }
+
+    public void moveDown(int n) {
+        y = Math.min(height - 1, y + n);
+    }
+
+    public void moveLeft(int n) {
+        x = Math.max(0, x - n);
+    }
+
+    public void moveRight(int n) {
+        x = Math.min(width - 1, x + n);
     }
 }

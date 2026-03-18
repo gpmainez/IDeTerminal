@@ -15,6 +15,7 @@ public class TerminalRingBuffer implements TerminalBuffer {
     private int currentBg = 0;
     private int currentFg = 0;
 
+
     public TerminalRingBuffer(int height, int width, int maxScroll) {
         this.height = height;
         this.width = width;
@@ -36,6 +37,7 @@ public class TerminalRingBuffer implements TerminalBuffer {
         this.currentBg = bg;
         this.currentFg = fg;
     }
+
     //method to move cursor to the nextLine and also manage history overwrite
     public void nextLine() {
         cursor.resetX();
@@ -53,6 +55,7 @@ public class TerminalRingBuffer implements TerminalBuffer {
             cursor.moveDown();
         }
     }
+
     //physically my cursorY index is always between 0 and height -1
     //but logically it s going down to totalCapacity so we have to manage it
     private int getCursorIdx(int logicalY) {
@@ -65,9 +68,21 @@ public class TerminalRingBuffer implements TerminalBuffer {
         return idx;
     }
 
-    @Override public int getCursorX() { return cursor.getX(); }
-    @Override public int getCursorY() { return cursor.getY(); }
-    @Override public void setCursor(int x, int y) { cursor.set(x, y); }
+    @Override
+    public int getCursorX() {
+        return cursor.getX();
+    }
+
+    @Override
+    public int getCursorY() {
+        return cursor.getY();
+    }
+
+    @Override
+    public void setCursor(int x, int y) {
+        //the logic to ingore is in cursor
+        cursor.set(x, y);
+    }
 
     @Override
     public void writeInput(String input) {
@@ -93,24 +108,24 @@ public class TerminalRingBuffer implements TerminalBuffer {
                     }
 
                     Cell cell = currentLine.getCell(cursor.getX());
-                    cell.setCell(' ',currentFont,currentBg,currentFg);
-                    cursor.moveNext();
+                    cell.setCell(' ', currentFont, currentBg, currentFg);
+                    cursor.moveRight();
                 }
                 continue;
             }
 
 
             Cell cell = currentLine.getCell(cursor.getX());
-            cell.setCell(c,currentFont,currentBg,currentFg);
+            cell.setCell(c, currentFont, currentBg, currentFg);
 
-            cursor.moveNext();
+            cursor.moveRight();
         }
     }
 
     @Override
     public char getCharAt(int x, int y) {
         if (x < 0 || x >= width) {
-            return ' '; //return emptybuffor null would result in NullPointerException
+            return ' '; //return null would result in NullPointerException
         }
 
         int availableScrollback = bufferSize - height;
@@ -165,10 +180,88 @@ public class TerminalRingBuffer implements TerminalBuffer {
                 targetX = 0;
             }
 
-            cursor.moveNext();
+            cursor.moveRight();
         }
     }
 
+
+    @Override
+    public void fillLine(char c) {
+        TerminalLine currentLine = buffer[getCursorIdx(cursor.getY())];
+
+        for (int x = 0; x < width; x++) {
+            Cell cell = currentLine.getCell(x);
+            cell.setCell(c, currentFont, currentFg, currentBg);
+        }
+    }
+
+    @Override
+    public void insertEmptyLine() {
+        //basically nextLine method
+        tail = (tail + 1) % totalCapacity;
+        if (bufferSize < totalCapacity) {
+            bufferSize++;
+        } else {
+            head = (head + 1) % totalCapacity;
+        }
+        buffer[tail].clear();
+    }
+
+    //clear the entire screen
+    @Override
+    public void clearScreen() {
+        for (int y = 0; y < height; y++) {
+            buffer[getCursorIdx(y)].clear();
+        }
+    }
+
+    @Override
+    public void clearAll() {
+        for (int i = 0; i < totalCapacity; i++) {
+            buffer[i].clear();
+        }
+
+        tail = height - 1;
+        head = 0;
+        bufferSize = height;
+        cursor.set(0, 0);
+    }
+
+    @Override
+    public String line(int y) {
+        int availableScrollback = bufferSize - height;
+        if (y < -availableScrollback || y >= height) {
+            return "";
+        }
+
+        int physicalIdx = getCursorIdx(y);
+        return buffer[physicalIdx].toString();
+    }
+    @Override
+    public String currentScreen() {
+        StringBuilder sb = new StringBuilder();
+        for (int y = 0; y < height; y++) {
+            sb.append(line(y));
+            if (y < height - 1) {
+                sb.append('\n');
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String historyBuffer() {
+        StringBuilder sb = new StringBuilder();
+        int availableScrollback = bufferSize - height;
+
+        for (int y = -availableScrollback; y < height; y++) {
+            sb.append(line(y));
+            if (y < height - 1) {
+                sb.append('\n');
+            }
+        }
+        return sb.toString();
+    }
 
 
 }
