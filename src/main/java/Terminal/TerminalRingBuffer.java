@@ -117,7 +117,7 @@ public class TerminalRingBuffer implements TerminalBuffer {
                 if (longChar && cursor.getX() == width - 1) {
 
                     TerminalLine lineBeforeWrap = buffer[getCursorIdx(cursor.getY())];
-                    lineBeforeWrap.getCell(cursor.getX()).setCell(' ', currentFont, currentBg, currentFg);
+                    lineBeforeWrap.getCell(cursor.getX()).setCell('\0', currentFont, currentBg, currentFg);
                 }
                 nextLine();
             }
@@ -140,11 +140,11 @@ public class TerminalRingBuffer implements TerminalBuffer {
             cell.setCell(c, currentFont, currentBg, currentFg);
             cursor.moveRight();
 
-//            if (longChar) {
-//                Cell emptyCell = currentLine.getCell(cursor.getX());
-//                emptyCell.setCell('\0', currentFont, currentBg, currentFg);
-//                cursor.moveRight();
-//            }
+            if (longChar) {
+                Cell emptyCell = currentLine.getCell(cursor.getX());
+                emptyCell.setCell('\0', currentFont, currentBg, currentFg);
+                cursor.moveRight();
+            }
         }
     }
 

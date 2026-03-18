@@ -23,9 +23,9 @@ public class ProductQualityTest {
         terminal.writeInput("字");
 
         //wide characters edge cases
-        assertEquals(' ', terminal.getCharAt(79, 0), "cell should be padded with space if WideChar doesn't fit");
+        assertEquals('\0', terminal.getCharAt(79, 0), "cell should be padded with space if WideChar doesn't fit");
         assertEquals('字', terminal.getCharAt(0, 1), "wide character should wrap to the beginning of next line");
-        assertEquals(' ', terminal.getCharAt(1, 1), "secod cell of WideChar is empty(space) marker");
+        assertEquals('\0', terminal.getCharAt(1, 1), "secod cell of WideChar is null marker");
 
 
 
