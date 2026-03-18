@@ -1,15 +1,18 @@
 public class TerminalLine {
     private final Cell[] line;
+    private final int width;
 
     public TerminalLine(int width) {
         line = new Cell[width];
-
+        this.width = width;
         for (int i = 0; i < width; i++) {
             line[i] = new Cell();
         }
     }
 
-
+    public Cell getCell(int x) {
+        return line[x];
+    }
     public void clear() {
         for (Cell cell : line) {
             cell.reset();
@@ -17,9 +20,8 @@ public class TerminalLine {
     }
 
     public void shiftRight(int fromX) {
-        // Idziemy od końca linii do miejsca wstawienia
         for (int i = line.length - 1; i > fromX; i--) {
-            // Kopiujemy znak i styl z sąsiada po lewej
+
             Cell current = line[i];
             Cell leftNeighbor = line[i - 1];
 
@@ -28,8 +30,23 @@ public class TerminalLine {
             current.setCellBgColour(leftNeighbor.getCellBgColour());
             current.setCellFgColour(leftNeighbor.getCellFgColour());
         }
-        // Po przesunięciu, na miejscu fromX zostaje "stary" znak,
-        // który zaraz nadpiszemy w metodzie insert.
+
+    }
+
+    public Cell moveRight(int fromX, Cell insertCell) {
+        Cell lastCell = line[line.length - 1].copy();
+
+        for(int i = line.length - 1; i > fromX; i--) {
+            Cell current = line[i];
+            Cell leftNeighbor = line[i - 1];
+            current.copyFrom(leftNeighbor);
+        }
+
+        line[fromX].copyFrom(insertCell);
+
+
+        return lastCell;
+
     }
 
     @Override
@@ -41,7 +58,5 @@ public class TerminalLine {
         return sb.toString();
     }
 
-    public Cell getCell(int x) {
-        return line[x];
-    }
+
 }

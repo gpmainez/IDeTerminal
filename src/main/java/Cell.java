@@ -7,56 +7,54 @@ public class Cell {
     public Cell() {
     }
 
-    public Cell(int font, int colour, int bgColour) {
-        this.font = font;
-        this.cellFgColour = colour;
-        this.cellBgColour = bgColour;
-    }
-
-    public char getBuffer() {
-        return buffer;
-    }
-
-    public void setBuffer(char buffer) {
+    public Cell(char buffer, int font, int cellFgColour, int cellBgColour) {
         this.buffer = buffer;
-    }
-
-    public int getFont() {
-        return font;
-    }
-
-    public void setFont(int font) {
         this.font = font;
-    }
-
-    public void setCellFgColour(int cellFgColour) {
         this.cellFgColour = cellFgColour;
-    }
-
-    public int getCellFgColour() {
-        return cellFgColour;
-    }
-
-    public int getCellBgColour() {
-        return cellBgColour;
-    }
-
-    public void setCellBgColour(int cellBgColour) {
         this.cellBgColour = cellBgColour;
     }
 
-    public Cell copy(char newBuffer) {
-        new Cell(this.font, this.cellFgColour, this.cellBgColour);
-        this.buffer = newBuffer;
-        return this;
+    public char getBuffer() { return buffer; }
+    public void setBuffer(char buffer) { this.buffer = buffer; }
+
+    public int getFont() { return font; }
+    public void setFont(int font) { this.font = font; }
+
+    public int getCellFgColour() { return cellFgColour; }
+    public void setCellFgColour(int cellFgColour) { this.cellFgColour = cellFgColour; }
+
+    public int getCellBgColour() { return cellBgColour; }
+    public void setCellBgColour(int cellBgColour) { this.cellBgColour = cellBgColour; }
+
+
+
+    public Cell copy() {
+        return new Cell(this.buffer, this.font, this.cellFgColour, this.cellBgColour);
     }
 
+    public void copyFrom(Cell other) {
+        this.buffer = other.buffer;
+        this.font = other.font;
+        this.cellFgColour = other.cellFgColour;
+        this.cellBgColour = other.cellBgColour;
+    }
+
+    public void setCell(char buffer, int font, int cellFgColour, int cellBgColour) {
+        this.buffer = buffer;
+        this.font = font;
+        this.cellFgColour = cellFgColour;
+        this.cellBgColour = cellBgColour;
+    }
+
+
     public void reset() {
-        buffer = ' ';
+        this.buffer = ' ';
         this.font = 0;
         this.cellFgColour = 0;
         this.cellBgColour = 0;
     }
 
-
+    public boolean isEmpty() {
+        return buffer == ' ' && font == 0 && cellFgColour == 0 && cellBgColour == 0;
+    }
 }
