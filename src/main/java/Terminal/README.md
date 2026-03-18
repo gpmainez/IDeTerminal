@@ -11,7 +11,7 @@ This project contains a memory efficient line terminal backend implementation in
 - **Cascade Insertion:** Support for "ripple-effect" text insertion across the buffer.
 - **Testing:** Includes basic I/O ring buffer overflow and production-grade edge case tests.
 
-## Optimazations
+## Optimizations
 The initial thought behind the project was to implement it using java.util.Arrays or java.util.Lists. 
 However, that approach proved ineffective with large history (thousands of lines) 
 and overwriting operations. Because of that I changed the approach and decided to use 
@@ -28,7 +28,7 @@ Accessing such content is handled via a negative Y-axis mechanism
 (for example y = -1 refers to the first line in history). 
 This implementation is UI-friendly and compatible with most front-end solutions.
 
-## In Progress
+## Challenges & In Progress
 Due to time constraints wide character functionality is currently limited to the writeInput 
 method. Implementing it into the insert method proved difficult, as the "ripple effect" 
 (shifting characters) would need to handle 2-cell blocks atomically or as arrays. 
@@ -40,6 +40,7 @@ should be refactored to recognize "continuation cells" (\0). When a shift occurs
 the system must ensure that a 2-cell character is moved as a single unit and not split 
 between the end of one line and the start of the next.
 
+## Build & Run
 
 Project is managed by **Maven**
 
